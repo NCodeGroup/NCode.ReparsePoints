@@ -53,7 +53,7 @@ namespace NCode.ReparsePoints.Win32
 			[In] IntPtr lpSecurityAttributes);
 
 		[DllImport(Kernel32, SetLastError = true, CharSet = CharSet.Unicode)]
-		[return: MarshalAs(UnmanagedType.Bool)]
+		[return: MarshalAs(UnmanagedType.I1)]
 		public static extern bool CreateSymbolicLink(
 			[In] string lpSymlinkFileName,
 			[In] string lpTargetFileName,

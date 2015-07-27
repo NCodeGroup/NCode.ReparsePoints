@@ -118,8 +118,8 @@ namespace NCode.ReparsePoints.Tests
 			}
 			finally
 			{
-				if (Directory.Exists(expectedSource)) Directory.Delete(expectedSource, true);
-				if (Directory.Exists(expectedTarget)) Directory.Delete(expectedTarget, true);
+				//if (Directory.Exists(expectedSource)) Directory.Delete(expectedSource, true);
+				//if (Directory.Exists(expectedTarget)) Directory.Delete(expectedTarget, true);
 			}
 		}
 

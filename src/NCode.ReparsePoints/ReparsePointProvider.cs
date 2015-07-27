@@ -12,7 +12,7 @@ namespace NCode.ReparsePoints
 {
 	/// <summary>
 	/// Contains the methods to create and inspect win32 file and folder reparse
-	/// points such as hard links, soft links (aka junctions), and symbolic links.
+	/// points such as hard links, junctions (aka soft links), and symbolic links.
 	/// </summary>
 	/// <remarks>
 	/// Technically speaking, hard links are not reparse points but this library
@@ -39,6 +39,11 @@ namespace NCode.ReparsePoints
 		/// Creates a new reparse point such as a hard link, junction (aka soft
 		/// link), or symoblic link.
 		/// </summary>
+		/// <remarks>
+		/// In order to create symbolic links, the current user must either be an
+		/// administrator running with elevated privileges or a non-admin user that
+		/// has the SeCreateSymbolicLinkPrivilege right in local security policy.
+		/// </remarks>
 		/// <param name="path">The path of reparse point to create.</param>
 		/// <param name="target">The target for the reparse point.</param>
 		/// <param name="type">A <see cref="LinkType"/> enumeration that specifies

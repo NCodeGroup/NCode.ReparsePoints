@@ -5,7 +5,7 @@ using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
 namespace NCode.ReparsePoints.Win32
 {
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 	internal struct Win32FindData
 	{
 		public FileAttributes FileAttributes;

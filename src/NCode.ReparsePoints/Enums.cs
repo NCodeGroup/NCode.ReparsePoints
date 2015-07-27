@@ -30,6 +30,11 @@ namespace NCode.ReparsePoints
 		/// <summary>
 		/// Represents a <c>symbolic link</c> to either a file or folder.
 		/// </summary>
+		/// <remarks>
+		/// In order to create symbolic links, the current user must either be an
+		/// administrator running with elevated privileges or a non-admin user that
+		/// has the SeCreateSymbolicLinkPrivilege right in local security policy.
+		/// </remarks>
 		Symbolic
 	}
 }
