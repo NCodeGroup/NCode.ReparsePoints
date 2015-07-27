@@ -1,3 +1,7 @@
+<a href="https://teamcity.bixbots.com/viewType.html?buildTypeId=NCodeReparsePoints_Build&guest=1">
+  <img src="https://img.shields.io/teamcity/https/teamcity.bixbots.com/s/NCodeReparsePoints_Build.svg?label=TeamCity" />
+</a>
+
 # NCode.ReparsePoints
 
 This library provides an API to create and inspect Win32 file and folder reparse points such as hard links, junctions (aka soft links), and symbolic links.
