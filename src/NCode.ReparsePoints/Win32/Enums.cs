@@ -2,16 +2,13 @@
 
 namespace NCode.ReparsePoints.Win32
 {
-	/// <summary>
-	/// 
-	/// </summary>
 	/// <remarks>
 	/// http://msdn.microsoft.com/en-us/library/windows/desktop/aa374896(v=vs.85).aspx
 	/// http://msdn.microsoft.com/en-us/library/windows/desktop/aa374892(v=vs.85).aspx
 	/// </remarks>
 	[Flags]
 	[Serializable]
-	public enum AccessRights : uint
+	internal enum AccessRights : uint
 	{
 		None = 0x0,
 
@@ -447,7 +444,7 @@ namespace NCode.ReparsePoints.Win32
 
 	[Flags]
 	[Serializable]
-	public enum FileShareMode
+	internal enum FileShareMode
 	{
 		/// <summary>
 		/// Prevents other processes from opening a file or device if they request
@@ -486,7 +483,7 @@ namespace NCode.ReparsePoints.Win32
 	}
 
 	[Serializable]
-	public enum FileCreationDisposition
+	internal enum FileCreationDisposition
 	{
 		/// <summary>
 		/// Creates a new file, only if it does not already exist. If the specified
@@ -540,7 +537,7 @@ namespace NCode.ReparsePoints.Win32
 
 	[Flags]
 	[Serializable]
-	public enum FileAttributeFlags : uint
+	internal enum FileAttributeFlags : uint
 	{
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
 
@@ -821,7 +818,7 @@ namespace NCode.ReparsePoints.Win32
 
 	[Flags]
 	[Serializable]
-	public enum AllocFlags
+	internal enum AllocFlags : uint
 	{
 		//LMEM_FIXED
 		Fixed = 0x00,
@@ -831,6 +828,13 @@ namespace NCode.ReparsePoints.Win32
 
 		//LMEM_ZEROINIT
 		ZeroInit = 0x40,
+	}
+
+	[Serializable]
+	internal enum SymbolicLinkFlag : uint
+	{
+		File = 0,
+		Directory = 1,
 	}
 
 }

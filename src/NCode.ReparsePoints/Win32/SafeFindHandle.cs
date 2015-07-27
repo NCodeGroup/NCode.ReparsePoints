@@ -5,7 +5,7 @@ using Microsoft.Win32.SafeHandles;
 namespace NCode.ReparsePoints.Win32
 {
 	[SecurityCritical]
-	internal sealed class SafeFindHandle : SafeHandleZeroOrMinusOneIsInvalid
+	internal class SafeFindHandle : SafeHandleZeroOrMinusOneIsInvalid
 	{
 		public SafeFindHandle()
 			: base(true)

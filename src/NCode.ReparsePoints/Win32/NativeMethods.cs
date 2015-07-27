@@ -12,10 +12,10 @@ namespace NCode.ReparsePoints.Win32
 	{
 		private const string Kernel32 = "kernel32.dll";
 
-		[DllImport(Kernel32, SetLastError = true, CharSet = CharSet.Auto)]
+		[DllImport(Kernel32, SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern SafeFindHandle FindFirstFile(
 			[In] string lpFileName,
-			[Out] out WIN32_FIND_DATA lpFindFileData);
+			[Out] out Win32FindData lpFindFileData);
 
 		[DllImport(Kernel32, SetLastError = true)]
 		[ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
@@ -28,26 +28,14 @@ namespace NCode.ReparsePoints.Win32
 		public static extern bool DeviceIoControl(
 			[In] SafeFileHandle hDevice,
 			[In] uint dwIoControlCode,
-			[In] IntPtr inBuffer,
-			[In] int nInBufferSize,
-			[In] IntPtr outBuffer,
-			[In] int nOutBufferSize,
-			[Out] out int lpBytesReturned,
-			[In] IntPtr lpOverlapped);
-
-		[DllImport(Kernel32, SetLastError = true, CharSet = CharSet.Auto)]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool DeviceIoControl(
-			[In] SafeFileHandle hDevice,
-			[In] uint dwIoControlCode,
 			[In] SafeLocalAllocHandle lpInBuffer,
 			[In] int nInBufferSize,
-			[In] IntPtr outBuffer,
+			[In] SafeLocalAllocHandle lpOutBuffer,
 			[In] int nOutBufferSize,
 			[Out] out int lpBytesReturned,
 			[In] IntPtr lpOverlapped);
 
-		[DllImport(Kernel32, SetLastError = true, CharSet = CharSet.Auto)]
+		[DllImport(Kernel32, SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern SafeFileHandle CreateFile(
 			[In] string lpFileName,
 			[In] AccessRights dwDesiredAccess,
@@ -57,22 +45,23 @@ namespace NCode.ReparsePoints.Win32
 			[In] FileAttributeFlags dwFlagsAndAttributes,
 			[In] IntPtr hTemplateFile);
 
-		[DllImport(Kernel32, SetLastError = true, CharSet = CharSet.Auto)]
+		[DllImport(Kernel32, SetLastError = true, CharSet = CharSet.Unicode)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool CreateHardLink(
-			string lpFileName,
-			string lpExistingFileName,
-			IntPtr lpSecurityAttributes);
+			[In] string lpFileName,
+			[In] string lpExistingFileName,
+			[In] IntPtr lpSecurityAttributes);
+
+		[DllImport(Kernel32, SetLastError = true, CharSet = CharSet.Unicode)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool CreateSymbolicLink(
+			[In] string lpSymlinkFileName,
+			[In] string lpTargetFileName,
+			[In] SymbolicLinkFlag dwFlags);
 
 		[DllImport(Kernel32, SetLastError = true)]
 		[ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
 		public static extern SafeLocalAllocHandle LocalAlloc(
-			[In] AllocFlags flags,
-			[In] IntPtr cb);
-
-		[DllImport(Kernel32, SetLastError = true, EntryPoint = "LocalAlloc")]
-		[ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-		public static extern SafeLocalAllocBuffer LocalAllocBuffer(
 			[In] AllocFlags flags,
 			[In] IntPtr cb);
 

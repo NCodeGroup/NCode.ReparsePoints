@@ -14,5 +14,13 @@
 		public const uint FSCTL_GET_REPARSE_POINT = 0x000900A8;
 
 		public const string NonInterpretedPathPrefix = "\\??\\";
+
+		public static readonly string[] DosDevicePrefixes =
+		{
+			"\\??\\",
+			"\\DosDevices\\",
+			"\\Global??\\"
+		};
+
 	}
 }

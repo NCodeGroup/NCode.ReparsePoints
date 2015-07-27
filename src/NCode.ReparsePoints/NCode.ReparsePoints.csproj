@@ -20,6 +20,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\NCode.ReparsePoints.xml</DocumentationFile>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +30,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\NCode.ReparsePoints.xml</DocumentationFile>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -39,19 +43,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ReparseLink.cs" />
+    <Compile Include="ReparsePointFactory.cs" />
     <Compile Include="Win32\Enums.cs" />
-    <Compile Include="Win32\IReparseBuffer.cs" />
-    <Compile Include="Win32\JunctionHeader.cs" />
     <Compile Include="Win32\NativeMethods.cs" />
     <Compile Include="ReparsePointProvider.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Win32\SafeFindHandle.cs" />
-    <Compile Include="Win32\SafeLocalAllocBuffer.cs" />
     <Compile Include="Win32\SafeLocalAllocHandle.cs" />
-    <Compile Include="Win32\SymbolicHeader.cs" />
+    <Compile Include="Win32\ReparseData.cs" />
     <Compile Include="Win32\Win32Constants.cs" />
-    <Compile Include="Win32\WIN32_FIND_DATA.cs" />
+    <Compile Include="Win32\Win32FindData.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NCode.ReparsePoints.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

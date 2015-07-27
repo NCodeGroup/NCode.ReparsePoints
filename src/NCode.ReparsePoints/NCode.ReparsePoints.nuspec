@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+
+	<metadata minClientVersion="2.8">
+		<id>NCode.ReparsePoints</id>
+		<title>NCode.ReparsePoints</title>
+		<version>$version$</version>
+
+		<owners>NCode Group</owners>
+		<authors>NCode Group</authors>
+		<copyright>Copyright © $year$ NCode Group</copyright>
+
+		<projectUrl>https://github.com/NCodeGroup/NCode.ReparsePoints</projectUrl>
+		<licenseUrl>https://raw.githubusercontent.com/NCodeGroup/NCode.ReparsePoints/master/LICENSE.txt</licenseUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+
+		<description>This library provides an API to create and inspect win32 file and folder reparse points such as hard links, junctions (aka soft links), and symbolic links.</description>
+		<tags>hardlink softlink junction symboliclink win32 link</tags>
+
+		<releaseNotes>Built on $timestamp$.</releaseNotes>
+	</metadata>
+
+</package>

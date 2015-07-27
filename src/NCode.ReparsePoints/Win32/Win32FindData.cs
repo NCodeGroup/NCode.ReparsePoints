@@ -5,9 +5,8 @@ using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
 namespace NCode.ReparsePoints.Win32
 {
-	[Serializable]
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-	internal struct WIN32_FIND_DATA
+	internal struct Win32FindData
 	{
 		public FileAttributes FileAttributes;
 		public FILETIME CreationTime;
@@ -21,5 +20,6 @@ namespace NCode.ReparsePoints.Win32
 		public string FileName;
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
 		public string AlternateFileName;
+
 	}
 }
