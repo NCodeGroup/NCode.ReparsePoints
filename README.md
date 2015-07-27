@@ -1,4 +1,4 @@
-<a href="https://teamcity.bixbots.com/viewType.html?buildTypeId=NCodeReparsePoints_Build&guest=1">
+<a href="https://teamcity.bixbots.com/viewType.html?buildTypeId=NCodeReparsePoints_Build&guest=1" target="_blank">
   <img src="https://img.shields.io/teamcity/https/teamcity.bixbots.com/s/NCodeReparsePoints_Build.svg?label=TeamCity" />
 </a>
 
