@@ -1,6 +1,6 @@
-#region Copyright Preamble
+﻿#region Copyright Preamble
 //
-//    Copyright � 2015 NCode Group
+//    Copyright © 2015 NCode Group
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -16,32 +16,11 @@
 //
 #endregion
 
-using System;
-using System.Security;
-using Microsoft.Win32.SafeHandles;
-
-namespace NCode.ReparsePoints.Win32
+namespace cReparsePoints
 {
-  [SecurityCritical]
-  internal class SafeFindHandle : SafeHandleZeroOrMinusOneIsInvalid
+  public enum Ensure
   {
-    public SafeFindHandle()
-      : base(true)
-    {
-      // do not delete this ctor
-      // it is required for pinvoke
-    }
-
-    public SafeFindHandle(IntPtr handle)
-      : base(true)
-    {
-      SetHandle(handle);
-    }
-
-    protected override bool ReleaseHandle()
-    {
-      return NativeMethods.FindClose(handle);
-    }
-
+    Present = 0,
+    Absent
   }
 }

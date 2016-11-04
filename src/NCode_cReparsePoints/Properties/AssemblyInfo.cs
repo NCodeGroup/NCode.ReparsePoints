@@ -21,9 +21,9 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("NCode.ReparsePoints")]
-[assembly: AssemblyProduct("NCode.ReparsePoints")]
-[assembly: AssemblyDescription("This library provides an API to create and inspect win32 file and folder reparse points such as hard links, junctions (aka soft links), and symbolic links.")]
+[assembly: AssemblyTitle("NCode_cReparsePoints")]
+[assembly: AssemblyProduct("NCode_cReparsePoints")]
+[assembly: AssemblyDescription("Contains a DSC resource for creating and inspecting win32 file and folder reparse points such as hard links, junctions (aka soft links), and symbolic links.")]
 [assembly: AssemblyCompany("NCode Group")]
 [assembly: AssemblyCopyright("Copyright © 2016 NCode Group")]
 [assembly: AssemblyTrademark("")]
@@ -38,8 +38,8 @@ using System.Runtime.InteropServices;
 #endif
 
 [assembly: ComVisible(false)]
-[assembly: CLSCompliant(true)]
-[assembly: Guid("4b52bb5d-21f4-425d-b922-0633d6206d26")]
+[assembly: CLSCompliant(false)]
+[assembly: Guid("19b96e1c-6765-4b65-a348-7bc23176240b")]
 
 [assembly: AssemblyVersion("1.0.0")]
 [assembly: AssemblyFileVersion("1.0.0")]

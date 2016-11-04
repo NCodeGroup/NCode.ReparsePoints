@@ -1,0 +1,8 @@
+﻿[ClassVersion("1.0.0"), FriendlyName("cReparsePoints")]
+class NCode_cReparsePoints : OMI_BaseResource
+{
+  [Key] String Path;
+  [Write, ValueMap{"Present", "Absent"}, Values{"Present", "Absent"}] String Ensure;
+  [Write, ValueMap{"Unknown", "HardLink", "Junction", "Symbolic"}, Values{"Unknown", "HardLink", "Junction", "Symbolic"}] String LinkType;
+  [Write] String Target;
+};
