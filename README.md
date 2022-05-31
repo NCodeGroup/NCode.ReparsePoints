@@ -56,6 +56,7 @@ See [MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365680.asp
 
 ## Example Usage
 
+````csharp
 	using NCode.ReparsePoints;
 	internal static class Program
 	{
@@ -69,9 +70,9 @@ See [MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365680.asp
 		    Console.WriteLine("Target: {0}", link.Target);
 		}
 	}
-
+````
 ## Interface
-
+````csharp
 	/// <summary>
 	/// Represents the type of reparse point such as a hard link, junction (aka
 	/// soft link), or symbolic link.
@@ -173,3 +174,4 @@ See [MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365680.asp
 		/// </remarks>
 		public string Target { get; set; }
 	}
+````	
