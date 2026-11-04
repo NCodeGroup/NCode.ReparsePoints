@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net451</TargetFramework>
+    <RootNamespace>NCode.ReparsePoints.Tests</RootNamespace>
+    <AssemblyName>NCode.ReparsePoints.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
+    <ProjectReference Include="..\..\src\NCode.ReparsePoints\NCode.ReparsePoints.csproj" />
+  </ItemGroup>
+
+</Project>
