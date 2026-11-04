@@ -1,0 +1,99 @@
+name: Code review
+
+# Reviews each pull request with NCode Review (NCodeGroup/code-review), which posts as ncode-review[bot]: a "Code review"
+# check run, a summary comment with a verdict, and inline threads. Nothing requires it; its findings are advice. It
+# reviews a pull request when it opens (drafts included, since that's when its author reviews it) and when it's marked
+# ready, unless that commit was already reviewed; pushes in between start nothing. A top-level `/review` comment from
+# someone with write access reviews the latest commit on demand; `/review explain F3` says whether a finding still holds,
+# and `/review teach <rule>` files a rule as an issue, both on a closed pull request too. A `skip-review` label skips
+# the automatic reviews. When a pull request closes, merged or not, the outcomes job only records each posted finding's
+# outcome, with no model call. It needs no environment: the app's key is an organization secret, and the code-review
+# environment holds none; it only lets Anthropic's federation rule trust the review job.
+#
+# pull_request_target and issue_comment both run this file from the default branch, so a pull request can't change its
+# own review. The engine fetches its code only to read it: nothing from it is built, run or installed.
+#
+# This file is yours: template updates show their changes to it and leave your copy alone, so a pin you bumped isn't
+# moved back. The action is pinned to a release's full commit SHA, with its tag in a comment: never a tag, a branch or
+# a floating major, because it receives the organization's keys, and a SHA is the one pin nobody can move. CodeQL's
+# extended suite reports any other pin as actions/unpinned-tag. Dependabot's github-actions entry opens each bump and
+# updates the SHA and the tag.
+# Run tools/Enable-CodeReview.ps1 from a clone of NCodeGroup/code-review once for this repository: it creates the
+# code-review environment, which only the default branch can deploy to, and gives the repository access to the
+# organization's two secrets.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, closed]
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+jobs:
+  review:
+    # The engine checks a comment again (`/review`, `/review explain` or `/review teach`, from a writer, on a pull request
+    # that isn't from a fork) and stops before any model call when it isn't one. A closed pull request goes to the
+    # outcomes job below instead, and a plain `/review` on one doesn't run, so it can't cancel or displace the outcomes
+    # job, which shares its concurrency group. The explain and teach checks here and in the concurrency group must name
+    # the same commands.
+    if: >-
+      (github.event_name == 'pull_request_target' && github.event.action != 'closed' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        github.event.sender.type != 'Bot' && !contains(github.event.pull_request.labels.*.name, 'skip-review')) ||
+      (github.event_name == 'issue_comment' && github.event.sender.type != 'Bot' && github.event.issue.pull_request &&
+        startsWith(github.event.comment.body, '/review') &&
+        (github.event.issue.state == 'open' || startsWith(github.event.comment.body, '/review explain') ||
+          startsWith(github.event.comment.body, '/review teach')) &&
+        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association))
+    runs-on: ubuntu-latest
+    # Anthropic's federation rule trusts only jobs in this environment, which only the default branch can deploy to.
+    environment: code-review
+    timeout-minutes: 30
+    # `/review explain` and `/review teach` answer with a comment of their own, so each runs apart and never cancels a
+    # review. A newer review of the same pull request cancels the one in progress.
+    concurrency:
+      group: code-review-${{ (startsWith(github.event.comment.body, '/review explain') || startsWith(github.event.comment.body, '/review teach')) && format('command-{0}', github.event.comment.id) || github.event.pull_request.number || github.event.issue.number }}
+      cancel-in-progress: true
+    permissions:
+      id-token: write
+      contents: read
+      # The issues a pull request closes are context for its intent, and synthesis links a finding to an open issue
+      # that already tracks it.
+      issues: read
+      pull-requests: read
+    steps:
+      - name: Check out the default branch for the conventions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: base
+          persist-credentials: false
+
+      - name: Review
+        uses: NCodeGroup/code-review@d14405f82771819586a5ccbff636929dc894b780 # v1.0.0
+        with:
+          app-private-key: ${{ secrets.NCODE_REVIEW_APP_PRIVATE_KEY }}
+          bedrock-api-key: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
+
+  outcomes:
+    # A closed pull request, merged or not, whoever closed it (a merge queue merges as a bot) and whatever its labels:
+    # records what became of each finding, by rules alone. It makes no model call, so it runs outside the code-review
+    # environment, without id-token: write, the Bedrock key or a checkout.
+    if: >-
+      github.event_name == 'pull_request_target' && github.event.action == 'closed' &&
+        github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # The review's group: it waits for a review in progress, so that review's threads are counted, instead of cancelling
+    # it.
+    concurrency:
+      group: code-review-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Record the outcomes
+        uses: NCodeGroup/code-review@d14405f82771819586a5ccbff636929dc894b780 # v1.0.0
+        with:
+          app-private-key: ${{ secrets.NCODE_REVIEW_APP_PRIVATE_KEY }}

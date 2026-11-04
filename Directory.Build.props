@@ -1,0 +1,10 @@
+<Project>
+
+  <!-- Shared settings from the project template: latest C#, nullable, implicit usings, warnings as errors, author metadata. -->
+  <Import Project="$(MSBuildThisFileDirectory)build/ProjectTemplate.props" />
+
+  <!-- This project's own settings. Anything set here overrides the template's. -->
+  <PropertyGroup>
+  </PropertyGroup>
+
+</Project>

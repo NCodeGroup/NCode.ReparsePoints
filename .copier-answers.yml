@@ -1,0 +1,19 @@
+# Written by Copier; never edit by hand. Change an answer with .template\Update-Project.ps1 -Data.
+_commit: v0.61.2
+_src_path: https://github.com/NCodeGroup/project-template.git
+author_name: NCode Group
+build_command: dotnet build
+code_review: true
+git_host: github
+license: ''
+nuget_package: true
+package_icon: NCodeGroup.png
+package_license: Apache-2.0
+project_description: Create and inspect Win32 file and folder reparse points such
+    as hard links, junctions and symbolic links.
+project_name: NCode.ReparsePoints
+stack: dotnet
+test_command: dotnet test
+workflow_tools:
+- claude
+- copilot

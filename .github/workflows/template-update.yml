@@ -1,0 +1,35 @@
+name: Template update
+
+# Every Monday, compares .template-version with the project template's newest version tag. While the project is behind,
+# it keeps one open issue labeled template-update, "Update to project-template <version>", with the release notes in
+# between; once the project is on the newest version, it closes that issue. The template owns this file: a template
+# update replaces it, so a local edit is lost. To stop the notices, disable the workflow instead:
+# gh workflow disable template-update.yml
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: template-update
+  cancel-in-progress: false
+
+jobs:
+  notice:
+    name: Template update notice
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Open, update or close the template update issue
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: ./.template/Get-TemplateUpdate.ps1

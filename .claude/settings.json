@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
+  "permissions": {
+    "allow": [
+      "EnterWorktree"
+    ],
+    "ask": [
+      "Bash(git push)",
+      "Bash(git push *)",
+      "PowerShell(git push)",
+      "PowerShell(git push *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(/secrets/**)"
+    ]
+  }
+}

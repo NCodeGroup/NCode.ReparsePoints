@@ -1,0 +1,47 @@
+# Dependabot, built into GitHub: each week, a pull request for every newer version, which CI tests and you merge.
+# Every update of one kind, major ones included, comes together in a single pull request, so a project gets one for its
+# actions and one for its packages instead of one per package. A new version waits three days (cooldown) before it's
+# offered, so one that is withdrawn or found compromised soon after its release never reaches the project. Security
+# updates, which come whenever an advisory affects a dependency, have a group of their own in each ecosystem, so one
+# advisory run is one pull request. A new .NET SDK major isn't offered: moving to a new .NET major is a planned migration
+# (/plan-migration). A docker entry a project adds ignores major updates of its base images the same way. One update
+# comes apart: a new release of the NCode Review action (NCodeGroup/code-review) has a pull request of its own.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+    groups:
+      # Dependabot puts an update in the first group that matches it, so this one comes before the catch-all group:
+      # .github/workflows/code-review-auto-merge.yml merges only a pull request whose one change is the NCode Review pin.
+      ncode-review:
+        patterns: ["NCodeGroup/code-review"]
+      github-actions:
+        patterns: ["*"]
+      github-actions-security:
+        applies-to: security-updates
+        patterns: ["*"]
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+    groups:
+      nuget:
+        patterns: ["*"]
+      nuget-security:
+        applies-to: security-updates
+        patterns: ["*"]
+  - package-ecosystem: dotnet-sdk
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

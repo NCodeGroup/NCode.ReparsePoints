@@ -1,0 +1,109 @@
+name: Code review auto-merge
+
+# Turns on auto-merge for a Dependabot pull request that only moves the NCode Review action
+# (NCodeGroup/code-review, which .github/workflows/code-review.yml calls) to a newer minor or patch release: every line
+# it changes is in .github/workflows and is that action's uses: line, pinned to a release's full commit SHA with its tag
+# in a comment. The ncode-review group in .github/dependabot.yml gives that bump a pull request of its own, apart from
+# the other actions' updates. The pull request then merges by itself once the checks the default branch requires pass.
+# A major release, which may change the inputs the caller passes, a pull request that updates other dependencies too,
+# and one that changes any other line wait for you. Auto-merge has to be allowed in the repository's settings, which
+# tools/Set-RepositoryBaseline.ps1 in NCodeGroup/project-template turns on. A project without code-review.yml gets no
+# such pull request, so this never merges anything there. This is the one exception to "a person merges every pull
+# request", with its scope and reasons: docs/decisions/project-template/0006-a-person-merges-every-pull-request.md.
+#
+# It merges by the first method that both the repository's settings and the active rules of the branch the pull
+# request merges into allow: a merge commit, else a rebase, else a squash. A ruleset's allowed merge methods count,
+# and so does its "Require linear history" rule, which rules out a merge commit. Where none is left, the run fails
+# and says so, and the pull request waits for you. Classic branch protection's "Require linear history" can't be
+# read with this run's token: a repository that sets it there should turn merge commits off in its settings, or
+# require linear history in a ruleset instead.
+#
+# pull_request_target runs this file from the default branch, with a token that can turn on auto-merge, which a
+# pull_request run that Dependabot started doesn't get. Nothing from the pull request is checked out or run: its changed
+# lines are read through the API, as text, and gh pr merge turns on auto-merge only while the pull request's head is
+# still the commit this run started for. The template owns this file: a template update replaces it, so a local edit is
+# lost. To stop it, disable the workflow instead: gh workflow disable code-review-auto-merge.yml
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions: {}
+
+concurrency:
+  group: code-review-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  auto-merge:
+    name: Code review auto-merge
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # What gh pr merge --auto needs, and nothing more.
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Read what Dependabot updates
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      # A comma-separated list names more than one dependency, so NCode Review alone is an exact match.
+      - name: Check that the pull request changes only the NCode Review pin
+        id: diff
+        if: >-
+          steps.metadata.outputs.dependency-names == 'NCodeGroup/code-review' &&
+          (steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
+            steps.metadata.outputs.update-type == 'version-update:semver-patch')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          # Each removed and added line is a uses: line that pins the action to a full commit SHA with its tag in a
+          # comment, and each file removes as many as it adds. The API's patch has hunks only, no file headers. The
+          # reasons printed name no file and quote no line: both come from the pull request.
+          $pin = '^[-+]\s*(- )?uses: NCodeGroup/code-review@[0-9a-f]{40} # v\d+\.\d+\.\d+\s*$'
+          $files = @(gh api --paginate --slurp "repos/$env:GH_REPO/pulls/$env:PR_NUMBER/files" | ConvertFrom-Json | ForEach-Object { $_ })
+          $why = @(foreach ($file in $files) {
+              $lines = @("$($file.patch)" -split "`n" | Where-Object { $_ -match '^[-+]' })
+              $added = @($lines | Where-Object { $_.StartsWith('+') }).Count
+              if ($file.filename -cnotmatch '^\.github/workflows/[^/]+\.yml$') { 'it changes a file that is not a workflow in .github/workflows' }
+              elseif ($file.status -ne 'modified' -or -not $file.patch) { 'it adds, removes, renames or empties a workflow' }
+              elseif (@($lines | Where-Object { $_ -cnotmatch $pin }).Count) { 'it changes a line that is not the NCode Review pin' }
+              elseif (-not $added -or 2 * $added -ne $lines.Count) { 'it removes or adds an NCode Review pin' }
+          })
+          if (-not $files.Count) { $why = @('it changes no file') }
+          if ($why.Count) {
+              $why | Sort-Object -Unique | ForEach-Object { "Left for a person to merge: $_." }
+              'only-pin=false' >> $env:GITHUB_OUTPUT
+          }
+          else { 'only-pin=true' >> $env:GITHUB_OUTPUT }
+
+      - name: Turn on auto-merge by a method the repository allows
+        id: merge
+        if: steps.diff.outputs.only-pin == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $settings = gh repo view "$env:GH_REPO" --json 'mergeCommitAllowed,rebaseMergeAllowed,squashMergeAllowed' | ConvertFrom-Json
+          $allowed = [ordered]@{ merge = $settings.mergeCommitAllowed; rebase = $settings.rebaseMergeAllowed; squash = $settings.squashMergeAllowed }
+          $rules = @(gh api --paginate --slurp "repos/$env:GH_REPO/rules/branches/$env:BASE_REF" | ConvertFrom-Json | ForEach-Object { $_ })
+          foreach ($rule in $rules) {
+              if ($rule.type -eq 'required_linear_history') { $allowed.merge = $false }
+              if ($rule.type -eq 'pull_request' -and $null -ne $rule.parameters.allowed_merge_methods) {
+                  foreach ($method in @($allowed.Keys)) { if ($method -notin $rule.parameters.allowed_merge_methods) { $allowed[$method] = $false } }
+              }
+          }
+          $method = @($allowed.Keys | Where-Object { $allowed[$_] })[0]
+          if (-not $method) { throw "No merge method is allowed by both the repository's settings and the rules of its $env:BASE_REF branch, so auto-merge stays off." }
+          "Turning on auto-merge with --$method."
+          gh pr merge --auto "--$method" --match-head-commit "$env:HEAD_SHA" "$env:PR_URL"

@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Management.Automation" Version="6.1.7601.17515" />
+    <PackageReference Include="System.Management.Automation" />
     <ProjectReference Include="..\NCode.ReparsePoints\NCode.ReparsePoints.csproj" />
     <None Include="cReparsePoints.psd1" />
     <None Include="NCode_cReparsePoints.schema.mof" />
