@@ -13,13 +13,13 @@
   <!-- Analyzers build/ProjectTemplate.props references for some projects: the null-forgiving operator banned outside test
        projects, and each packable project's public API tracked in its PublicAPI.Shipped.txt and PublicAPI.Unshipped.txt. -->
   <ItemGroup>
-    <PackageVersion Include="Nullable.Extended.Analyzer" Version="1.17.0" />
+    <PackageVersion Include="Nullable.Extended.Analyzer" Version="1.19.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="5.6.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
-    <PackageVersion Include="NUnit" Version="3.14.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+    <PackageVersion Include="NUnit" Version="5.0.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="6.3.1" />
     <PackageVersion Include="System.Management.Automation" Version="6.1.7601.17515" />
   </ItemGroup>
