@@ -41,4 +41,7 @@ How `/ship-plan` lands a reviewed plan. `integrate`: `pull-request` pushes the p
 
 ## Conventions
 
-- (Add the project's conventions here, and any template rule this project overrides.)
+- The library wraps Win32 reparse-point APIs (hard links, junctions, symbolic links) through P/Invoke, so it runs only on Windows. `NCode.ReparsePoints` targets .NET Framework 4.5.1; its tests (NUnit 3, `tests/NCode.ReparsePoints.Tests`) create real links on disk and target .NET Framework 4.8, so they run only on Windows. `dotnet test` and `./build/dod.ps1` fail on Linux and macOS at the test stage; CI runs them on `windows-latest`.
+- `src/NCode_cReparsePoints` is a PowerShell DSC resource (with its module in `src/cReparsePoints`), not part of the package: it is not packable and is exempt from the XML documentation rule (CS1591) and the underscore-in-name rule (CA1707), because PowerShell finds the resource by that name.
+- The public API of `NCode.ReparsePoints` follows Semantic Versioning and is recorded in `src/NCode.ReparsePoints/PublicAPI.Shipped.txt`; record a change with `./build/Update-PublicApi.ps1`. The Win32 access-right enums list the SDK's aliases (equal values) on purpose, so CA1069 is off for `src/NCode.ReparsePoints/Win32/Enums.cs`.
+- The default branch is `master`. `.github/workflows/ci.yml` is project-owned (`project_owned_files` in `.copier-answers.yml`) because the template's copy runs on Linux and watches `main`; keep it on `windows-latest` and `master`, and compare it with the template's copy on each template update.

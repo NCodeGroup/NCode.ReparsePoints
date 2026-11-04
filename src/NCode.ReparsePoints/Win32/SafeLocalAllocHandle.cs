@@ -16,7 +16,6 @@
 //
 #endregion
 
-using System;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
@@ -25,7 +24,7 @@ using Microsoft.Win32.SafeHandles;
 namespace NCode.ReparsePoints.Win32
 {
   [SecurityCritical]
-  internal class SafeLocalAllocHandle : SafeHandleZeroOrMinusOneIsInvalid
+  internal sealed class SafeLocalAllocHandle : SafeHandleZeroOrMinusOneIsInvalid
   {
     #region Static Members
 
@@ -46,7 +45,7 @@ namespace NCode.ReparsePoints.Win32
 
     #endregion
 
-    protected SafeLocalAllocHandle()
+    internal SafeLocalAllocHandle()
       : base(true)
     {
       // do not delete this ctor
@@ -59,31 +58,31 @@ namespace NCode.ReparsePoints.Win32
       SetHandle(handle);
     }
 
-    public virtual int Write(int position, byte[] buffer, int offset, int count)
+    public int Write(int position, byte[] buffer, int offset, int count)
     {
       Marshal.Copy(buffer, offset, handle + position, count);
       return count;
     }
 
-    public virtual int Write<T>(int position, T value)
+    public int Write<T>(int position, T value)
     {
       var count = Marshal.SizeOf(value);
       Marshal.StructureToPtr(value, handle + position, false);
       return count;
     }
 
-    public virtual T Read<T>(int position)
+    public T Read<T>(int position)
     {
       var value = Marshal.PtrToStructure<T>(handle + position);
       return value;
     }
 
-    public virtual void Read(int position, byte[] buffer, int offset, int count)
+    public void Read(int position, byte[] buffer, int offset, int count)
     {
       Marshal.Copy(handle + position, buffer, offset, count);
     }
 
-    public virtual string ReadString(int position, int byteCount, Encoding encoding)
+    public string ReadString(int position, int byteCount, Encoding encoding)
     {
       var bytes = new byte[byteCount];
       Read(position, bytes, 0, byteCount);

@@ -17,7 +17,6 @@
 #endregion
 
 using System.Collections;
-using System.Collections.Generic;
 using System.Management.Automation;
 using NCode.ReparsePoints;
 
@@ -28,11 +27,11 @@ namespace cReparsePoints
   public class GetTargetResource : PSCmdlet
   {
     [Parameter(Mandatory = true)]
-    public string Path { get; set; }
+    public string Path { get; set; } = string.Empty;
 
     protected override void ProcessRecord()
     {
-      var response = new Dictionary<string, string>();
+      var response = new Dictionary<string, string?>();
       var link = ReparsePointFactory.Provider.GetLink(Path);
       if (link.Type != LinkType.Unknown)
       {

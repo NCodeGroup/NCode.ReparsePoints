@@ -44,3 +44,11 @@ dotnet_diagnostic.IDE0073.severity = suggestion
 # EF Core migrations are scaffolded by dotnet ef, not written by hand: the analyzers treat them as generated code.
 [**/Migrations/**.cs]
 generated_code = true
+
+# The Win32 access-right enums list the SDK's documented aliases, such as FileReadData and FileListDirectory (both 0x1), under their own names to match the Win32 headers.
+[src/NCode.ReparsePoints/Win32/Enums.cs]
+dotnet_diagnostic.CA1069.severity = none
+
+# The DSC resource's assembly and its MOF schema are named NCode_cReparsePoints, and PowerShell finds the resource by that name.
+[src/NCode_cReparsePoints/**.cs]
+dotnet_diagnostic.CA1707.severity = none

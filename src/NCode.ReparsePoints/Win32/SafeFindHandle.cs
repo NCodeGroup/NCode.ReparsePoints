@@ -16,14 +16,13 @@
 //
 #endregion
 
-using System;
 using System.Security;
 using Microsoft.Win32.SafeHandles;
 
 namespace NCode.ReparsePoints.Win32
 {
   [SecurityCritical]
-  internal class SafeFindHandle : SafeHandleZeroOrMinusOneIsInvalid
+  internal sealed class SafeFindHandle : SafeHandleZeroOrMinusOneIsInvalid
   {
     public SafeFindHandle()
       : base(true)

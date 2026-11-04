@@ -35,8 +35,8 @@ jobs:
     # The engine checks a comment again (`/review`, `/review explain` or `/review teach`, from a writer, on a pull request
     # that isn't from a fork) and stops before any model call when it isn't one. A closed pull request goes to the
     # outcomes job below instead, and a plain `/review` on one doesn't run, so it can't cancel or displace the outcomes
-    # job, which shares its concurrency group. The explain and teach checks here and in the concurrency group must name
-    # the same commands.
+    # job, which shares its concurrency group. The concurrency group below names no command: it keys on a comment whose
+    # first line is exactly `/review`.
     if: >-
       (github.event_name == 'pull_request_target' && github.event.action != 'closed' &&
         github.event.pull_request.head.repo.full_name == github.repository &&
@@ -50,10 +50,12 @@ jobs:
     # Anthropic's federation rule trusts only jobs in this environment, which only the default branch can deploy to.
     environment: code-review
     timeout-minutes: 30
-    # `/review explain` and `/review teach` answer with a comment of their own, so each runs apart and never cancels a
-    # review. A newer review of the same pull request cancels the one in progress.
+    # Only a comment whose first line is exactly `/review` joins the pull request's group, where a newer review cancels
+    # the one in progress. Any other comment, `/review explain` and `/review teach` included, runs in a group of its own
+    # and never cancels a review. Lines after `/review`, such as an agent's `---` footer, are allowed, so the expression
+    # accepts `/review` followed by `\n` or `\r\n`. It is the v1.1.2 caller's (ADR-1001 in NCodeGroup/code-review).
     concurrency:
-      group: code-review-${{ (startsWith(github.event.comment.body, '/review explain') || startsWith(github.event.comment.body, '/review teach')) && format('command-{0}', github.event.comment.id) || github.event.pull_request.number || github.event.issue.number }}
+      group: code-review-${{ github.event_name == 'issue_comment' && !(github.event.comment.body == '/review' || startsWith(github.event.comment.body, format('/review{0}', fromJSON('"\n"'))) || startsWith(github.event.comment.body, format('/review{0}', fromJSON('"\r\n"')))) && format('command-{0}', github.event.comment.id) || github.event.pull_request.number || github.event.issue.number }}
       cancel-in-progress: true
     permissions:
       id-token: write
@@ -70,7 +72,8 @@ jobs:
           persist-credentials: false
 
       - name: Review
-        uses: NCodeGroup/code-review@d14405f82771819586a5ccbff636929dc894b780 # v1.0.0
+        # v1.1.2 was published on 2026-11-02, inside the 3-day dependency cooldown: adopted at the maintainer's request.
+        uses: NCodeGroup/code-review@564bb16f8f4f25f88dcc47baae10d7edf55ca504 # v1.1.2
         with:
           app-private-key: ${{ secrets.NCODE_REVIEW_APP_PRIVATE_KEY }}
           bedrock-api-key: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
@@ -94,6 +97,7 @@ jobs:
       pull-requests: read
     steps:
       - name: Record the outcomes
-        uses: NCodeGroup/code-review@d14405f82771819586a5ccbff636929dc894b780 # v1.0.0
+        # v1.1.2 was published on 2026-11-02, inside the 3-day dependency cooldown: adopted at the maintainer's request.
+        uses: NCodeGroup/code-review@564bb16f8f4f25f88dcc47baae10d7edf55ca504 # v1.1.2
         with:
           app-private-key: ${{ secrets.NCODE_REVIEW_APP_PRIVATE_KEY }}

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net451</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <RootNamespace>NCode.ReparsePoints.Tests</RootNamespace>
     <AssemblyName>NCode.ReparsePoints.Tests</AssemblyName>
   </PropertyGroup>

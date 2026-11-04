@@ -174,3 +174,15 @@ See [MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365680.asp
 		public string Target { get; set; }
 	}
 ````
+
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE.txt).
+
+## Project
+
+- [CONTRIBUTING.md](CONTRIBUTING.md): how to set up, build, test and propose a change.
+- [SECURITY.md](SECURITY.md): how to report a vulnerability privately.
+- [docs/decisions/](docs/decisions/README.md): the decisions behind the design, the project's and the template's.
+- [CHANGELOG.md](CHANGELOG.md): what changed in each release, in the Keep a Changelog format.
+- [LICENSE.txt](LICENSE.txt): the license.

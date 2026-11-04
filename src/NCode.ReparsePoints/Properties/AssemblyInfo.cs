@@ -16,11 +16,8 @@
 //
 #endregion
 
-using System;
-using System.Resources;
 using System.Runtime.InteropServices;
 
-[assembly: NeutralResourcesLanguage("en-us")]
 
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]

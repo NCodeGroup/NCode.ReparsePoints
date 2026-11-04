@@ -16,7 +16,6 @@
 //
 #endregion
 
-using System;
 
 namespace NCode.ReparsePoints.Win32
 {

@@ -4,6 +4,9 @@
     <TargetFramework>net451</TargetFramework>
     <RootNamespace>cReparsePoints</RootNamespace>
     <AssemblyName>NCode_cReparsePoints</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <!-- A PowerShell DSC resource: its public types are cmdlets that PowerShell discovers, not a documented .NET API. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

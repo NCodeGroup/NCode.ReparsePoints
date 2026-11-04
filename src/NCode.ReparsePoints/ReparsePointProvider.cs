@@ -16,11 +16,9 @@
 //
 #endregion
 
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
@@ -145,7 +143,7 @@ namespace NCode.ReparsePoints
       }
 
       var encoding = Encoding.Unicode;
-      var reparseHeaderSize = Marshal.SizeOf(typeof(ReparseHeader));
+      var reparseHeaderSize = Marshal.SizeOf<ReparseHeader>();
       var bufferLength = reparseHeaderSize + 2048;
 
       using (var hReparsePoint = OpenReparsePoint(path, AccessRights.GenericRead))
@@ -186,6 +184,7 @@ namespace NCode.ReparsePoints
 
                 default:
                   throw new InvalidOperationException(String.Format(
+                    CultureInfo.InvariantCulture,
                     "An unknown reparse tag {0:X} was encountered.",
                     reparseHeader.ReparseTag));
               }
@@ -243,7 +242,7 @@ namespace NCode.ReparsePoints
           break;
 
         default:
-          throw new ArgumentException(String.Format("Invalid Type {0} was specified.", type), "type");
+          throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "Invalid Type {0} was specified.", type), nameof(type));
       }
     }
 
@@ -367,7 +366,7 @@ namespace NCode.ReparsePoints
         .Where(prefix => path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
         .Aggregate(path, (current, prefix) => current.Remove(0, prefix.Length));
 
-      while (result.EndsWith("\\"))
+      while (result.EndsWith("\\", StringComparison.Ordinal))
         result = result.Remove(result.Length - 1);
 
       return result;

@@ -16,9 +16,7 @@
 // 
 #endregion
 
-using System;
 using System.ComponentModel;
-using System.IO;
 using NUnit.Framework;
 
 namespace NCode.ReparsePoints.Tests
