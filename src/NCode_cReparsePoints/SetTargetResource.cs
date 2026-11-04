@@ -16,8 +16,6 @@
 //
 #endregion
 
-using System;
-using System.IO;
 using System.Management.Automation;
 using NCode.ReparsePoints;
 
@@ -39,7 +37,7 @@ namespace cReparsePoints
     }
 
     [Parameter(Mandatory = true)]
-    public string Path { get; set; }
+    public string Path { get; set; } = string.Empty;
 
     [Parameter(Mandatory = true)]
     [ValidateSet("Unknown", "HardLink", "Junction", "Symbolic", IgnoreCase = true)]
@@ -50,7 +48,7 @@ namespace cReparsePoints
     }
 
     [Parameter(Mandatory = true)]
-    public string Target { get; set; }
+    public string Target { get; set; } = string.Empty;
 
     protected override void ProcessRecord()
     {

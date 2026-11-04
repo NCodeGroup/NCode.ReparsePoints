@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+#
+# pre-push - keep pushes off the default branch when the Landing policy says so.
+#
+# A repository whose host can't require pull requests, such as a private
+# repository on GitHub Free, sets `- protect: hook` in the `## Landing` section
+# of AGENTS.md. This hook then refuses any push that updates the remote's
+# default branch, so every change lands through a pull request: /ship-plan
+# pushes the plan's branch and opens one. Pushes of other branches and of tags
+# go through. Without that line the hook does nothing.
+# It needs awk, and refuses every push when awk is missing, since it can't tell
+# then whether the line is there.
+#
+# This file comes from the project template, and template updates replace it.
+# Git runs it once it is enabled in a clone; New-Project.ps1 and
+# .template/Update-Project.ps1 do that:
+#     git config core.hooksPath .githooks
+# A clone that uses pre-commit, or has hooks of its own, runs it from
+# .git/hooks/pre-push instead, or from .git/hooks/pre-push.legacy when
+# pre-commit installed its pre-push hook, with `exec .githooks/pre-push "$@"`;
+# Update-Project.ps1 prints the lines to add.
+
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -f "$root/AGENTS.md" ] || exit 0
+protect=$(awk '{ sub(/\r$/, "") } /^## Landing[[:space:]]*$/ { landing = 1; next } landing && /^## / { exit } landing && /^- protect:/ { print $3; exit }' "$root/AGENTS.md") || {
+    echo "pre-push: can't read the protect value from AGENTS.md's Landing section, because awk is missing or failed. Put awk on PATH and push again." >&2
+    exit 1
+}
+[ "$protect" = hook ] || exit 0
+
+default=$(git symbolic-ref --short "refs/remotes/$1/HEAD" 2>/dev/null)
+default=${default#"$1"/}
+[ -n "$default" ] || default=main
+
+refused=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+    if [ "$remote_ref" = "refs/heads/$default" ]; then
+        echo "pre-push: AGENTS.md's Landing section says protect: hook, so $default takes changes only through pull requests. Push a branch and open a pull request instead; /ship-plan does both." >&2
+        refused=1
+    fi
+done
+exit $refused

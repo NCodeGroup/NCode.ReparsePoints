@@ -1,0 +1,6 @@
+# Analyzer severities from the project template, for every project; build/ProjectTemplate.props adds this file.
+# Template updates replace it; never edit it. To change a severity, set it in .editorconfig, which wins over this file.
+is_global = true
+
+# Unused using directives fail the build. Fix them with: dotnet format style --diagnostics IDE0005
+dotnet_diagnostic.IDE0005.severity = warning

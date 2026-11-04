@@ -16,7 +16,6 @@
 //
 #endregion
 
-using System.IO;
 
 namespace NCode.ReparsePoints
 {
@@ -42,6 +41,6 @@ namespace NCode.ReparsePoints
     /// The target for a hard link cannot be determined so this member will
     /// always be <c>null</c> for hard links.
     /// </remarks>
-    public string Target { get; set; }
+    public string? Target { get; set; }
   }
 }

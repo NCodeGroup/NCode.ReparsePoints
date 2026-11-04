@@ -1,4 +1,4 @@
-﻿#region Copyright Preamble
+#region Copyright Preamble
 //
 //    Copyright © 2015 NCode Group
 //
@@ -16,31 +16,9 @@
 //
 #endregion
 
-using System;
-using System.Reflection;
-using System.Resources;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("NCode.ReparsePoints")]
-[assembly: AssemblyProduct("NCode.ReparsePoints")]
-[assembly: AssemblyDescription("This library provides an API to create and inspect win32 file and folder reparse points such as hard links, junctions (aka soft links), and symbolic links.")]
-[assembly: AssemblyCompany("NCode Group")]
-[assembly: AssemblyCopyright("Copyright © 2016 NCode Group")]
-[assembly: AssemblyTrademark("")]
-
-[assembly: AssemblyCulture("")]
-[assembly: NeutralResourcesLanguage("en-us")]
-
-#if DEBUG
-[assembly: AssemblyConfiguration("Debug")]
-#else
-[assembly: AssemblyConfiguration("Release")]
-#endif
 
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
 [assembly: Guid("4b52bb5d-21f4-425d-b922-0633d6206d26")]
-
-[assembly: AssemblyVersion("1.0.0")]
-[assembly: AssemblyFileVersion("1.0.0")]
-[assembly: AssemblyInformationalVersion("1.0.0")]

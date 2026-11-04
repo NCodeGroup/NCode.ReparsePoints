@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  # edited: Commit attribution reads the pull request's title and description, which a squash merge can make the commit
+  # on the default branch, so it runs again when they change.
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  # A required check must also report in a merge queue.
+  merge_group:
+    types: [checks_requested]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to a pull request or a topic branch, or an edit of the pull request, cancels the run it supersedes. A run
+# for a default-branch commit or a merge queue entry is never cancelled: its group holds its commit SHA, because
+# cancel-in-progress: false alone still lets a newer run in the same group cancel a pending one, which would leave that
+# commit without a verdict.
+concurrency:
+  group: ci-${{ github.ref }}-${{ (github.ref == format('refs/heads/{0}', github.event.repository.default_branch) || github.event_name == 'merge_group') && github.sha || 'latest' }}
+  cancel-in-progress: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && github.event_name != 'merge_group' }}
+
+jobs:
+  build-and-test:
+    # Project-owned (see AGENTS.md): the library wraps Win32 APIs and its tests create real links, so they run only on Windows.
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The decision index check compares the records with the default branch, so it needs every branch's history.
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+      # No lock file is committed, so setup-dotnet's own cache has no key: this one keys on the restore's inputs.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('Directory.Packages.props', 'global.json', '.config/dotnet-tools.json', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Check the decision index
+        run: ./.template/Test-AdrIndex.ps1
+      # The Definition of Done builds, tests and, for a library, packs, as build/dod.ps1 says.
+      - name: Definition of Done
+        if: hashFiles('**/*.csproj', '**/*.sln', '**/*.slnx') != ''
+        run: ./build/dod.ps1
+      # A TRX file per test project, kept after a failure too, to see which test failed.
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-results
+          path: artifacts/test-results/
+          retention-days: 14
+          if-no-files-found: ignore
+      # The packages a release would publish, to inspect without any publishing permission.
+      - name: Upload packages
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: packages
+          path: |
+            artifacts/packages/*.nupkg
+            artifacts/packages/*.snupkg
+          retention-days: 14
+          if-no-files-found: ignore
+
+  commit-attribution:
+    name: Commit attribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check commit attribution
+        shell: pwsh
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: ./.template/Test-CommitAttribution.ps1 -Base $env:BASE -Head $env:HEAD -PullRequestTitle $env:PR_TITLE -PullRequestBody $env:PR_BODY

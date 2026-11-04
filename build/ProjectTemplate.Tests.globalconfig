@@ -1,0 +1,19 @@
+# Analyzer severities from the project template for test projects (<Name>.Tests), on top of ProjectTemplate.globalconfig;
+# build/ProjectTemplate.props adds this file to them. Template updates replace it; never edit it. To turn a rule back on,
+# set its severity in .editorconfig, which wins over this file.
+is_global = true
+# Above ProjectTemplate.globalconfig's level, so these win where both set a rule.
+global_level = 101
+
+# Tests document behavior through their names, not XML comments; the documentation file is still generated for IDE0005.
+dotnet_diagnostic.CS1591.severity = none
+# Test methods are named Method_State_Expected, with underscores.
+dotnet_diagnostic.CA1707.severity = none
+# Test classes have no finalizer, so Dispose calling GC.SuppressFinalize would be pointless.
+dotnet_diagnostic.CA1816.severity = none
+# Tests hold collaborators by their interface, as the code under test does, not by the concrete type.
+dotnet_diagnostic.CA1859.severity = none
+# Inline array literals passed straight to assertions read better than a field per array.
+dotnet_diagnostic.CA1861.severity = none
+# Each test builds its own JsonSerializerOptions, so tests stay independent of each other's converters.
+dotnet_diagnostic.CA1869.severity = none

@@ -1,0 +1,46 @@
+# The Copilot cloud agent's environment, prepared before each session: GitHub runs this workflow's one job on the
+# session's fresh runner, so the agent starts with the project's toolchain and packages instead of installing them
+# itself. GitHub reads the job only from the default branch and only under the name copilot-setup-steps, and takes only
+# its steps, permissions, runs-on, services, snapshot and timeout-minutes, so each step names its own shell. When a step
+# fails, the rest are skipped and the session starts anyway. The push and pull_request triggers run it when this file
+# changes, to show it still works.
+name: Copilot Setup Steps
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/copilot-setup-steps.yml]
+  pull_request:
+    paths: [.github/workflows/copilot-setup-steps.yml]
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    # The session's limit too, counted from this job's start: 59 is the most Copilot allows.
+    timeout-minutes: 59
+    permissions:
+      contents: read
+    steps:
+      # The agent gets a token of its own, so the checkout keeps none.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+      # The same key as CI's, so a session reuses the packages CI restored.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('Directory.Packages.props', 'global.json', '.config/dotnet-tools.json', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Restore tools
+        if: hashFiles('.config/dotnet-tools.json') != ''
+        shell: pwsh
+        run: dotnet tool restore
+      - name: Restore packages
+        if: hashFiles('*.sln', '*.slnx') != ''
+        shell: pwsh
+        run: dotnet restore

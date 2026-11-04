@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "anthropic.claude-code",
+    "github.copilot-chat",
+    "editorconfig.editorconfig",
+    "ms-dotnettools.csdevkit"
+  ]
+}

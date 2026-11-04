@@ -1,0 +1,32 @@
+---
+description: "Finish a plan whose work is pushed — retire PLAN.md, fast-forward the default branch, delete the plan's branch"
+argument-hint: "[Optional extra instructions; the plan's worktree name when several are open]"
+model: sonnet
+effort: high
+disable-model-invocation: true
+---
+## Finish the plan's worktree
+
+Each plan lives in its own git worktree under `.claude/worktrees/<name>/`, on the branch `worktree-<name>`. This command also removes that worktree, so the task below runs in two places: its steps 1 to 3 in the worktree, and its steps 4 and 5 in the main checkout.
+
+1. Find the worktree. When the command's arguments name one, run `git worktree list --porcelain`, find the `worktree` path under `.claude/worktrees/` with that folder name, and use it — even when this session is already in a different worktree. Otherwise run `git rev-parse --show-toplevel`: when the path contains `/.claude/worktrees/`, this session is in it. Otherwise list the plan worktrees the same way; with several and none named, list them with their branches and stop to ask which one; with none, do the whole task where this session is.
+2. Do the task's steps 1 to 3 in the worktree: in it, as written; from the main checkout, with `git -C <worktree path>` and the state script's `-Path <worktree path>`, deleting `<worktree path>/PLAN.md`. Never switch into the worktree with the `EnterWorktree` tool: Claude Code doesn't remove a worktree entered that way. The plan's branch is `worktree-<name>`, even when the state script's `branch` is `-`.
+3. Then remove the worktree. In it: call the `ExitWorktree` tool with `action: "remove"` and `discard_changes: true`, because the task's checks showed nothing is lost and the tool can't check that itself; it returns the session to the main checkout even when it says it kept the worktree. From the main checkout: run `git worktree remove <worktree path>`.
+4. When git says the worktree is locked by `claude session <name> (pid <N>)`, check whether that process runs (`Get-Process -Id <N>`). When it runs, stop and ask me to end that session. When it doesn't, run `git worktree unlock <worktree path>` and remove the worktree again. When removing fails with "Permission denied", "Access is denied" or a folder in use, stop and ask me to close the terminals, editors and sessions open in that folder, then run this command again. When removing fails with "Filename too long", a path in the worktree passes Windows' 260-character limit, and git has already unregistered the worktree and deleted what it could. The task's checks showed nothing is lost, so delete the folder with `Remove-Item -LiteralPath <worktree path> -Recurse -Force`, which handles long paths, and in the summary ask me to run `git config --global core.longpaths true`, so git removes such a worktree itself next time.
+5. In the main checkout, run `git worktree list --porcelain`. When the worktree is still listed — `ExitWorktree` doesn't remove a worktree this session entered with a `path`, and may refuse for other reasons — run `git worktree remove <worktree path>`, and go back to item 4 when git reports a lock, a folder in use or "Filename too long". Then run `git worktree prune`. When the worktree's folder is still there and empty, delete it. When it still holds files and `Get-ChildItem -LiteralPath <worktree path> -Recurse -Force | Where-Object { $_.FullName.Length -ge 248 }` lists any, removal stopped at Windows' path limit: handle it as item 4 says for "Filename too long". Otherwise, when it still holds files, stop and list them.
+6. Do the task's steps 4 and 5 in the main checkout. When it isn't on the default branch, run `git fetch origin <default branch>:<default branch>` instead of switching and pulling: it only fast-forwards, and leaves the work checked out there alone. Delete `worktree-<name>` only after that fast-forward; when `ExitWorktree` already deleted it, skip that.
+
+From here on, never run commands in the removed worktree's folder.
+
+## Task
+
+Finish the plan whose work is already pushed or merged: retire `PLAN.md`, bring the default branch up to date, and delete the plan's branch. Never push, merge, rebase or reset in this command: when a check fails, stop and say what is left to do.
+
+Extra instructions (may be empty): $ARGUMENTS
+
+1. Read the state: run `pwsh -NoProfile -File .template/Get-PlanState.ps1` from the repository root, adding `-Path <folder>` when the plan is in another folder. It fetches `origin` and prints `key: value` lines; `-` means none. Below, `<default branch>` is its `default` value and `<plan's branch>` its `branch` value. When `dirty` is `yes`, stop and list the files `git status --porcelain` prints. When `steps` isn't `-` and its two counts differ, as in `3/5`, stop and list the step headings in `PLAN.md` that don't start with `### [x]`. When `unfiled` is above 0 and the `landing` line's `follow-ups` isn't `none`, stop: the `## Follow-ups` section of `PLAN.md` lists follow-ups that were never filed as issues. List those lines, and say to run ship-plan, which files them, then finish-plan again.
+2. Check the work is upstream: the check passed when `landed` is `yes`. The script counts the branch as landed when `HEAD` is on `origin/<default branch>`, or when `gh` or `glab` finds a merged pull request from it whose merge commit is on `origin/<default branch>` and whose head holds `HEAD` or has the same tree, as a squash merge or a merge queue leaves it. When `ahead` isn't `0`, it landed the second way: name the pull request on the `pr` line. When `default` is `-`, stop: there is no `origin` remote. Otherwise — no such pull request, or `pr` is `unknown` because the CLI is missing or failed — show `git log --oneline origin/<default branch>..HEAD` and stop to ask me whether to push those commits first or whether they reached the default branch another way.
+3. Retire the plan: delete `PLAN.md` when it exists.
+4. Fast-forward the default branch: run `git switch <default branch>`, then `git pull --ff-only`. When either fails, stop and report the error.
+5. When the plan's branch is not `-` and not the default branch, delete it with `git branch -d <plan's branch>`. When `-d` refuses, use `git branch -D <plan's branch>` only if step 2 passed or I confirmed the commits reached the default branch. When `origin/<plan's branch>` still exists, say so and leave it: deleting it is a push.
+6. Finish with the range `git pull` printed (or "already up to date"), the default branch's commit (`git log --oneline -1`), and the branches deleted.

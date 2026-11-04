@@ -23,7 +23,7 @@ namespace NCode.ReparsePoints
   /// </summary>
   public static class ReparsePointFactory
   {
-    private static IReparsePointProvider _provider;
+    private static IReparsePointProvider? _provider;
 
     /// <summary>
     /// Instantiates the default implementation of <see cref="IReparsePointProvider"/>.

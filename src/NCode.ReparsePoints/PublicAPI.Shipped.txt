@@ -1,0 +1,30 @@
+#nullable enable
+NCode.ReparsePoints.IReparsePointProvider
+NCode.ReparsePoints.IReparsePointProvider.CreateLink(string! path, string! target, NCode.ReparsePoints.LinkType type) -> void
+NCode.ReparsePoints.IReparsePointProvider.GetLink(string! path) -> NCode.ReparsePoints.ReparseLink
+NCode.ReparsePoints.IReparsePointProvider.GetLinkType(string! path) -> NCode.ReparsePoints.LinkType
+NCode.ReparsePoints.LinkType
+NCode.ReparsePoints.LinkType.HardLink = 1 -> NCode.ReparsePoints.LinkType
+NCode.ReparsePoints.LinkType.Junction = 2 -> NCode.ReparsePoints.LinkType
+NCode.ReparsePoints.LinkType.Symbolic = 3 -> NCode.ReparsePoints.LinkType
+NCode.ReparsePoints.LinkType.Unknown = 0 -> NCode.ReparsePoints.LinkType
+NCode.ReparsePoints.ReparseLink
+NCode.ReparsePoints.ReparseLink.Attributes.get -> System.IO.FileAttributes
+NCode.ReparsePoints.ReparseLink.Attributes.set -> void
+NCode.ReparsePoints.ReparseLink.ReparseLink() -> void
+NCode.ReparsePoints.ReparseLink.Target.get -> string?
+NCode.ReparsePoints.ReparseLink.Target.set -> void
+NCode.ReparsePoints.ReparseLink.Type.get -> NCode.ReparsePoints.LinkType
+NCode.ReparsePoints.ReparseLink.Type.set -> void
+NCode.ReparsePoints.ReparsePointFactory
+NCode.ReparsePoints.ReparsePointProvider
+NCode.ReparsePoints.ReparsePointProvider.ReparsePointProvider() -> void
+static NCode.ReparsePoints.ReparsePointFactory.Create() -> NCode.ReparsePoints.IReparsePointProvider!
+static NCode.ReparsePoints.ReparsePointFactory.Provider.get -> NCode.ReparsePoints.IReparsePointProvider!
+static NCode.ReparsePoints.ReparsePointFactory.Provider.set -> void
+virtual NCode.ReparsePoints.ReparsePointProvider.CreateHardLink(string! file, string! target) -> void
+virtual NCode.ReparsePoints.ReparsePointProvider.CreateJunction(string! path, string! target) -> void
+virtual NCode.ReparsePoints.ReparsePointProvider.CreateLink(string! path, string! target, NCode.ReparsePoints.LinkType type) -> void
+virtual NCode.ReparsePoints.ReparsePointProvider.CreateSymbolicLink(string! path, string! target) -> void
+virtual NCode.ReparsePoints.ReparsePointProvider.GetLink(string! path) -> NCode.ReparsePoints.ReparseLink
+virtual NCode.ReparsePoints.ReparsePointProvider.GetLinkType(string! path) -> NCode.ReparsePoints.LinkType

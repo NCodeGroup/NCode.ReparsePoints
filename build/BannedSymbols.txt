@@ -1,0 +1,48 @@
+# APIs the project template bans in every project, tests included: using one is a build error (RS0030, from
+# Microsoft.CodeAnalysis.BannedApiAnalyzers). Template updates replace this file; never edit it. Ban more in a
+# BannedSymbols.<name>.txt of the project's own, added in Directory.Build.props. docs/decisions/project-template/ says why.
+# Format: <documentation comment ID>;<message>
+
+# Sync-over-async: blocking on a task deadlocks under a synchronization context and starves the thread pool. Await instead.
+P:System.Threading.Tasks.Task`1.Result;Sync-over-async is banned. Await the task instead of blocking on .Result.
+P:System.Threading.Tasks.ValueTask`1.Result;Sync-over-async is banned. Await the ValueTask instead of blocking on .Result.
+M:System.Threading.Tasks.Task.Wait;Sync-over-async is banned. Await the task instead of Task.Wait().
+M:System.Threading.Tasks.Task.Wait(System.Int32);Sync-over-async is banned. Await the task instead of Task.Wait().
+M:System.Threading.Tasks.Task.Wait(System.TimeSpan);Sync-over-async is banned. Await the task instead of Task.Wait().
+M:System.Threading.Tasks.Task.Wait(System.Threading.CancellationToken);Sync-over-async is banned. Await the task instead of Task.Wait().
+M:System.Threading.Tasks.Task.Wait(System.Int32,System.Threading.CancellationToken);Sync-over-async is banned. Await the task instead of Task.Wait().
+M:System.Threading.Tasks.Task.Wait(System.TimeSpan,System.Threading.CancellationToken);Sync-over-async is banned. Await the task instead of Task.Wait().
+M:System.Threading.Tasks.Task.WaitAll(System.Threading.Tasks.Task[]);Sync-over-async is banned. Use await Task.WhenAll(...).
+M:System.Threading.Tasks.Task.WaitAll(System.ReadOnlySpan{System.Threading.Tasks.Task});Sync-over-async is banned. Use await Task.WhenAll(...).
+M:System.Threading.Tasks.Task.WaitAll(System.Threading.Tasks.Task[],System.TimeSpan);Sync-over-async is banned. Use await Task.WhenAll(...).
+M:System.Threading.Tasks.Task.WaitAll(System.Threading.Tasks.Task[],System.Int32);Sync-over-async is banned. Use await Task.WhenAll(...).
+M:System.Threading.Tasks.Task.WaitAll(System.Threading.Tasks.Task[],System.Threading.CancellationToken);Sync-over-async is banned. Use await Task.WhenAll(...).
+M:System.Threading.Tasks.Task.WaitAll(System.Threading.Tasks.Task[],System.Int32,System.Threading.CancellationToken);Sync-over-async is banned. Use await Task.WhenAll(...).
+M:System.Threading.Tasks.Task.WaitAll(System.Collections.Generic.IEnumerable{System.Threading.Tasks.Task},System.Threading.CancellationToken);Sync-over-async is banned. Use await Task.WhenAll(...).
+M:System.Threading.Tasks.Task.WaitAny(System.Threading.Tasks.Task[]);Sync-over-async is banned. Use await Task.WhenAny(...).
+M:System.Threading.Tasks.Task.WaitAny(System.Threading.Tasks.Task[],System.TimeSpan);Sync-over-async is banned. Use await Task.WhenAny(...).
+M:System.Threading.Tasks.Task.WaitAny(System.Threading.Tasks.Task[],System.Threading.CancellationToken);Sync-over-async is banned. Use await Task.WhenAny(...).
+M:System.Threading.Tasks.Task.WaitAny(System.Threading.Tasks.Task[],System.Int32);Sync-over-async is banned. Use await Task.WhenAny(...).
+M:System.Threading.Tasks.Task.WaitAny(System.Threading.Tasks.Task[],System.Int32,System.Threading.CancellationToken);Sync-over-async is banned. Use await Task.WhenAny(...).
+M:System.Runtime.CompilerServices.TaskAwaiter.GetResult;Sync-over-async is banned. Await the task instead of .GetAwaiter().GetResult().
+M:System.Runtime.CompilerServices.TaskAwaiter`1.GetResult;Sync-over-async is banned. Await the task instead of .GetAwaiter().GetResult().
+M:System.Runtime.CompilerServices.ValueTaskAwaiter.GetResult;Sync-over-async is banned. Await the ValueTask instead of .GetAwaiter().GetResult().
+M:System.Runtime.CompilerServices.ValueTaskAwaiter`1.GetResult;Sync-over-async is banned. Await the ValueTask instead of .GetAwaiter().GetResult().
+
+# A JsonDocument rents pooled buffers that leak when it isn't disposed, and an element read from it fails once it is.
+# JsonElement.Parse returns a detached element with nothing to dispose.
+M:System.Text.Json.JsonDocument.Parse(System.String,System.Text.Json.JsonDocumentOptions);Use JsonElement.Parse, which returns a detached element with nothing to dispose.
+M:System.Text.Json.JsonDocument.Parse(System.ReadOnlyMemory{System.Byte},System.Text.Json.JsonDocumentOptions);Use JsonElement.Parse, which returns a detached element with nothing to dispose.
+M:System.Text.Json.JsonDocument.Parse(System.ReadOnlyMemory{System.Char},System.Text.Json.JsonDocumentOptions);Use JsonElement.Parse, which returns a detached element with nothing to dispose.
+M:System.Text.Json.JsonDocument.Parse(System.Buffers.ReadOnlySequence{System.Byte},System.Text.Json.JsonDocumentOptions);Use JsonElement.Parse, which returns a detached element with nothing to dispose.
+M:System.Text.Json.JsonDocument.Parse(System.IO.Stream,System.Text.Json.JsonDocumentOptions);Use JsonSerializer.Deserialize<JsonElement>, which returns a detached element with nothing to dispose.
+M:System.Text.Json.JsonDocument.ParseAsync(System.IO.Stream,System.Text.Json.JsonDocumentOptions,System.Threading.CancellationToken);Use JsonSerializer.DeserializeAsync<JsonElement>, which returns a detached element with nothing to dispose.
+M:System.Text.Json.JsonDocument.ParseValue(System.Text.Json.Utf8JsonReader@);Use JsonElement.ParseValue, which returns a detached element with nothing to dispose.
+M:System.Text.Json.JsonDocument.TryParseValue(System.Text.Json.Utf8JsonReader@,System.Text.Json.JsonDocument@);Use JsonElement.TryParseValue, which returns a detached element with nothing to dispose.
+
+# One JSON stack: System.Text.Json. Newtonsoft.Json stays out of the code.
+T:Newtonsoft.Json.JsonConvert;Use System.Text.Json.JsonSerializer instead of Newtonsoft.Json.
+T:Newtonsoft.Json.JsonSerializer;Use System.Text.Json.JsonSerializer instead of Newtonsoft.Json.
+T:Newtonsoft.Json.Linq.JToken;Use System.Text.Json.Nodes.JsonNode instead of Newtonsoft.Json.Linq.
+T:Newtonsoft.Json.Linq.JObject;Use System.Text.Json.Nodes.JsonObject instead of Newtonsoft.Json.Linq.
+T:Newtonsoft.Json.Linq.JArray;Use System.Text.Json.Nodes.JsonArray instead of Newtonsoft.Json.Linq.
