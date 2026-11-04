@@ -1,0 +1,85 @@
+<Project>
+
+  <!-- Shared build settings from the project template, imported by Directory.Build.props. Template updates replace this file; never edit it. Override a setting in Directory.Build.props, after the import. The decisions behind them are in docs/decisions/project-template/. -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Roslyn reports unused usings (IDE0005) in the build only when it generates XML documentation. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- A newly published NuGet advisory fails CI and the full Definition of Done (build/dod.ps1 sets FailOnNuGetAdvisories), but not a local build of unchanged code. -->
+    <WarningsNotAsErrors Condition="'$(CI)' != 'true' and '$(FailOnNuGetAdvisories)' != 'true'">$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+    <!-- Minimal-API request delegates are generated at compile time; only the Web SDK reads this. -->
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <Product>NCode.ReparsePoints</Product>
+    <Authors>NCode Group</Authors>
+    <Company>NCode Group</Company>
+    <Copyright>Copyright © $([System.DateTime]::Now.Year) NCode Group</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+  <!-- Analyzer severities (ProjectTemplate.globalconfig; .editorconfig overrides them) and the banned APIs (BannedApiAnalyzers, referenced in Directory.Packages.props). Add a list of the project's own as BannedSymbols.<name>.txt in Directory.Build.props. -->
+  <ItemGroup>
+    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)ProjectTemplate.globalconfig" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
+  </ItemGroup>
+
+  <!-- The null-forgiving operator (!) fails the build outside test projects (Nullable.Extended.Analyzer, NX0001-NX0004). Restructure instead; its '// !' justification comment is not an escape here. Item conditions see the project's final properties. -->
+  <ItemGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
+    <PackageReference Include="Nullable.Extended.Analyzer" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+  <!-- NuGet packages: license expression, README and icon in each package, Source Link (built into the .NET SDK) with untracked sources, symbol packages and XML documentation. A project's own README.md is its package's readme; without one, the repository's is. -->
+  <PropertyGroup>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>NCodeGroup.png</PackageIcon>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Include, not Update: this file is read before the SDK adds the project's files as items. -->
+    <None Include="$(MSBuildProjectDirectory)/README.md" Condition="Exists('$(MSBuildProjectDirectory)/README.md')" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)../README.md" Condition="!Exists('$(MSBuildProjectDirectory)/README.md')" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)../NCodeGroup.png" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+
+  <!-- Each packable project's public API is the one its PublicAPI.Shipped.txt and PublicAPI.Unshipped.txt declare: a public change not recorded there fails the build (RS0016, RS0017). build/Update-PublicApi.ps1 creates and fills the files; set IsPackable to false on a project that isn't published. -->
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+  <!-- The package's project page and release notes point at the repository Source Link finds from the git remote, unless the project sets them. -->
+  <Target Name="ProjectTemplateRepositoryLinks" BeforeTargets="GenerateNuspec" DependsOnTargets="InitializeSourceControlInformation" Condition="'$(RepositoryUrl)' != '' or '$(PrivateRepositoryUrl)' != ''">
+    <PropertyGroup>
+      <_ProjectTemplateRepository>$(RepositoryUrl)</_ProjectTemplateRepository>
+      <_ProjectTemplateRepository Condition="'$(_ProjectTemplateRepository)' == ''">$(PrivateRepositoryUrl)</_ProjectTemplateRepository>
+      <_ProjectTemplateRepository>$([System.Text.RegularExpressions.Regex]::Replace('$(_ProjectTemplateRepository)', '\.git$', ''))</_ProjectTemplateRepository>
+      <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">$(_ProjectTemplateRepository)</PackageProjectUrl>
+      <PackageReleaseNotes Condition="'$(PackageReleaseNotes)' == ''">See the changelog: $(_ProjectTemplateRepository)/blob/HEAD/CHANGELOG.md</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
+
+  <!-- Semantic versioning for the assemblies: AssemblyVersion moves only with the major version, so a minor or patch upgrade is a drop-in replacement and two majors load side by side; FileVersion and InformationalVersion keep the exact version. A target, so it reads the final Version, from the project file or the command line. -->
+  <Target Name="ProjectTemplatePinAssemblyVersion" BeforeTargets="GetAssemblyVersion" Condition="'$(AssemblyVersion)' == ''">
+    <PropertyGroup>
+      <FileVersion Condition="'$(FileVersion)' == ''">$(Version.Split('-')[0].Split('+')[0])</FileVersion>
+      <AssemblyVersion>$([System.Version]::Parse($(Version.Split('-')[0].Split('+')[0])).Major).0.0.0</AssemblyVersion>
+    </PropertyGroup>
+  </Target>
+
+  <!-- Test projects, named <Name>.Tests by the C# conventions. IsTestProject isn't set yet when this file is read. They keep XML documentation on, which IDE0005 needs, and take the severities in ProjectTemplate.Tests.globalconfig, which .editorconfig overrides. -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)ProjectTemplate.Tests.globalconfig" />
+  </ItemGroup>
+
+</Project>

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   # edited: Commit attribution reads the pull request's title and description, which a squash merge can make the commit
   # on the default branch, so it runs again when they change.
   pull_request:
@@ -25,7 +25,8 @@ concurrency:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    # Project-owned (see AGENTS.md): the library wraps Win32 APIs and its tests create real links, so they run only on Windows.
+    runs-on: windows-latest
     timeout-minutes: 30
     defaults:
       run:

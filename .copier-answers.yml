@@ -12,6 +12,8 @@ package_license: Apache-2.0
 project_description: Create and inspect Win32 file and folder reparse points such
     as hard links, junctions and symbolic links.
 project_name: NCode.ReparsePoints
+project_owned_files:
+- .github/workflows/ci.yml
 stack: dotnet
 test_command: dotnet test
 workflow_tools:
