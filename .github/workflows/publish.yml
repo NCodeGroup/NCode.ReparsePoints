@@ -57,7 +57,7 @@ jobs:
           git merge-base --is-ancestor HEAD "origin/$env:DEFAULT_BRANCH"
           if ($LASTEXITCODE -eq 1) { throw "The release tag names a commit that isn't on $env:DEFAULT_BRANCH: tag a commit that is." }
           if ($LASTEXITCODE) { throw "git merge-base failed with exit code $LASTEXITCODE." }
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           global-json-file: global.json
       - name: Test
