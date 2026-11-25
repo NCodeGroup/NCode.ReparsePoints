@@ -73,7 +73,7 @@ jobs:
 
       - name: Review
         # v1.1.2 was published on 2026-11-02, inside the 3-day dependency cooldown: adopted at the maintainer's request.
-        uses: NCodeGroup/code-review@d1233665998b66af6ec3d9e40d90a4638c235a67 # v1.4.0
+        uses: NCodeGroup/code-review@1d492311c1061b8bc8b12921d580d0d1d1bb268e # v1.5.1
         with:
           app-private-key: ${{ secrets.NCODE_REVIEW_APP_PRIVATE_KEY }}
           bedrock-api-key: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
@@ -98,6 +98,6 @@ jobs:
     steps:
       - name: Record the outcomes
         # v1.1.2 was published on 2026-11-02, inside the 3-day dependency cooldown: adopted at the maintainer's request.
-        uses: NCodeGroup/code-review@d1233665998b66af6ec3d9e40d90a4638c235a67 # v1.4.0
+        uses: NCodeGroup/code-review@1d492311c1061b8bc8b12921d580d0d1d1bb268e # v1.5.1
         with:
           app-private-key: ${{ secrets.NCODE_REVIEW_APP_PRIVATE_KEY }}
